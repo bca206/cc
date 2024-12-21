@@ -1,0 +1,117 @@
+create table salesman
+     (
+     salesman_id int primary key,
+     name varchar(20),
+     city varchar(20),
+     commission varchar(20)
+     );
+
+create table customer
+    (
+   customer_id int primary key,
+   cust_name varchar(20),
+   city varchar(20),
+   grade int,
+   salesman_id int,
+   foreign key (salesman_id) references salesman (salesman_id) on delete set null
+   );
+
+create table orders
+(
+ord_no int primary key,
+purchase_amt decimal (10,2),
+ord_date date,
+customer_id int,
+salesman_id int,
+foreign key (customer_id) references customer (customer_id) on delete cascade,
+foreign key (salesman_id) references salesman (salesman_id) on delete cascade
+);
+
+
+insert into salesman values (001,'azhar','bhtkal','18%');
+insert into salesman values (002,'shaneef','manglore','20%');
+insert into salesman values (003,'kaif','kundapur','10%');
+insert into salesman values (004,'jafar','banglore','20%');
+insert into salesman values (005,'ruvaid','karwar','20%');
+
+
+insert into customer values (101,'raif','bhatkal',10,001);
+insert into customer values (102,'uzair','dehli',20,002);
+insert into customer values (103,'kasim','banglore',20,003);
+insert into customer values (104,'shaeef','goa',20,003);
+insert into customer values (105,'faizaan','goa',20,004);
+insert into customer values (106,'arshad','banglore',15,004);
+
+insert into orders values (201,100000,'22-oct-2022',101,001);
+insert into orders values (202,10000,'31-mar-2020',102,002);
+insert into orders values (203,4321,'13-dec-2021',103,002);
+insert into orders values (204,97821,'17-jan-2023',104,004);
+insert into orders values (205,30000,'23-jan-2022',105,005);
+
+
+ select grade,count (customer_id) as count_of_customer
+  from customer
+ where grade >
+     (select avg(grade)
+       from customer
+      where city='banglore'
+ )
+group by grade;
+
+
+select name ,salesman_id
+from salesman a
+where  1< (select count(*)
+ from customer c
+where c.salesman_id=a.salesman_id
+);
+
+
+SELECT s.salesman_id, 
+       s.name, 
+       c.cust_name, 
+       s.commission
+FROM salesman s
+JOIN customer c ON s.salesman_id = c.salesman_id
+UNION
+SELECT s.salesman_id, 
+       s.name, 
+       'no_match' AS cust_name, 
+       s.commission
+FROM salesman s
+WHERE s.salesman_id NOT IN (SELECT salesman_id FROM customer);
+
+
+
+CREATE VIEW vw_highest_order AS
+SELECT o.ord_date, s.name, s.salesman_id
+FROM orders o, salesman s
+WHERE o.salesman_id = s.salesman_id
+  AND o.purchase_amt = (
+      SELECT MAX(purchase_amt)
+      FROM orders
+      WHERE ord_date = o.ord_date
+  );
+
+
+DELETE FROM salesman 
+WHERE salesman_id = 4; 
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+create table emp (
+empno int primary key,
+name varchar2(20),
+salary int,
+gender char(1)
+);
+
+insert into emp values (1,'hasan',2000,'m');
+
+
+set serveroutput on;
+begin
+   insert into emp values (3,'raju',6000,'m');
+dbms_output.put_line('number of record inserted:'||to_char(sql%rowcount));
+end;
+/
+
